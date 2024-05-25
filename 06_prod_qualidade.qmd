@@ -1,0 +1,122 @@
+---
+title: "06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina"
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = FALSE,
+                      comment = "##",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+
+# Pacotes
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(factoextra)
+library(AgroR)
+library(metan)
+```
+
+# Dados
+```{r}
+df <- import("data/prod_quali.xlsx")
+
+```
+
+# Ácidos graxos
+```{r}
+df_ggplot <-
+  df |>
+  select(epoca:cultivar, C14_1:C22_6n3) |>
+  pivot_longer(C14_1:C22_6n3) |>
+  mutate(GRUPO = ifelse(value < 1, "Outro", name)) |>
+  mean_by(GRUPO, epoca, cultivar)
+
+ggplot(df_ggplot, aes(epoca, value)) +
+  geom_col(aes(fill = GRUPO),
+           position = "fill",
+           color = "white") +
+  facet_wrap(~cultivar) +
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  theme_bw() +
+  labs(x = "Época de semeadura",
+       y = "Proporção dos áxidos graxos totais")
+```
+
+# Anova
+```{r}
+# numero de graos
+ng <- with(df, FAT2DBC(epoca, cultivar, bloco, ng))
+ng_epo <- 
+  ng$graph1 +
+  labs(x = "Época de semeadura",
+       y = "Número de grãos por planta")
+
+# numero de graos
+rgpla <- with(df, FAT2DBC(epoca, cultivar, bloco, rgpla))
+rgpla_epo <- 
+  rgpla$graph1 +
+  labs(x = "Época de semeadura",
+       y = "Rendimento de grãos por planta (g)")
+
+# numero de graos
+mmg <- with(df, FAT2DBC(epoca, cultivar, bloco, mmg))
+mmg_epo <- 
+  mmg$graph1 +
+  labs(x = "Época de semeadura",
+       y = "Massa de mil grãos (g)")
+
+# Fenólicos totais
+Ft <- with(df, FAT2DBC(epoca, cultivar, bloco, Ft))
+Ft_it <- 
+  Ft[[2]] +
+  labs(x = "Época de semeadura",
+       y = "Fenólicos totais (µg EAG / g MS)")
+
+# Flavonoides
+Fl <- with(df, FAT2DBC(epoca, cultivar, bloco, Fl))
+Fl_it <- 
+  Ft[[2]] +
+  labs(x = "Época de semeadura",
+       y = "Flavonoies")
+
+# Potencial antioxidante
+DPPH <- with(df, FAT2DBC(epoca, cultivar, bloco, DPPH))
+DPPH_it <- 
+  Ft[[2]] +
+  labs(x = "Época de semeadura",
+       y = "DPPH")
+
+```
+
+
+
+# PCA
+```{r}
+dfpca <- 
+df |> 
+  select(epoca, ng, rgpla, mmg, Ft, Fl, DPPH, Lip, C20_3n6, C20_11n9, C18_3n6, C18_2n6t, C17_0)
+library(FactoMineR)
+library(factoextra)
+
+pca <- PCA(dfpca, quali.sup = 1)
+fviz_pca_biplot(pca, 
+                habillage = 1,
+                repel = TRUE) +
+  labs(color = "Época",
+       shape = "Época")
+
+ggsave("figs/pca_qualiprod.jpg",
+       width = 6,
+       height = 6)
+```
+
+# Section info
+```{r}
+sessionInfo()
+```
+

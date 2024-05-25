@@ -1,0 +1,426 @@
+---
+title: "05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens"
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = FALSE,
+                      comment = "##",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+
+# Pacotes
+
+To reproduce the examples of this material, the R packages the following packages are needed.
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(factoextra)
+library(caret)
+library(pliman)
+library(metan)
+
+```
+
+# Objetos com diferentes complexidades
+```{r}
+img <- image_import(c("E28_3300.jpg", "E20_2490.jpg", "E19_2475.jpg"), path = "imgs/pcv")
+img[[1]] <- img[[1]] |> image_vreflect()
+cont <- 
+  object_contour(
+    img, 
+    index = "B",
+    watershed = FALSE
+  )
+sapply(cont, poly_circularity_haralick)
+sapply(cont, poly_solidity)
+
+dfp <- 
+  bind_rows(
+    cont[[2]][[1]] |> as.data.frame() |>  mutate(exemplo = "Folha 1"),
+    cont[[3]][[1]] |> as.data.frame() |>  mutate(exemplo = "Folha 2"),
+    cont[[1]][[1]] |> as.data.frame() |>  mutate(exemplo = "Folha 3")
+  )
+
+ggplot(dfp, aes(V1, V2)) +
+  geom_polygon(aes(fill = exemplo)) +
+  facet_wrap(~exemplo) +
+  theme_void() +
+  theme(legend.position = "bottom",
+        strip.text = element_blank()) +
+  coord_fixed() +
+  labs(fill = "")
+
+
+
+a1 <- cont[[1]][[1]]
+a2 <- conv_hull(cont[[1]])[[1]]
+dfch <- 
+  bind_rows(
+    a1 |> as.data.frame() |>  mutate(exemplo = "A"),
+    a2 |> as.data.frame() |>  mutate(exemplo = "A(PC)")
+  )
+
+ggplot(dfch, aes(V1, V2)) +
+  geom_polygon(aes(fill = exemplo),
+               alpha = 0.5, 
+               data = dfch |> filter(exemplo == "A(PC)")) +
+  geom_polygon(aes(fill = exemplo),
+               data = dfch |> filter(exemplo == "A")) +
+  # facet_wrap(~exemplo) +
+  theme_void() +
+  theme(legend.position = "bottom",
+        strip.text = element_blank()) +
+  coord_fixed() +
+  labs(fill = "")
+
+
+
+```
+
+# Problemática
+```{r}
+img1 <- image_import("imgs/pcv/E10_1487.jpg")
+cont2 <- 
+  object_contour(
+    img1, 
+    index = "B",
+    watershed = FALSE
+  )[[1]]
+
+ef <- efourier(cont2, nharm = 10) |> efourier_inv(nharm = 10, npoints = 3982)
+plot_polygon(ef)
+poly_circularity_norm(list(cont2, ef))
+poly_solidity(list(cont2, ef))
+poly_pcv(list(cont2, ef))
+
+dfp2 <- 
+  bind_rows(
+    cont2 |> as.data.frame() |>  mutate(exemplo = "Folha 1"),
+    ef |> unclass() |>  as.data.frame() |> set_names(c("V1", "V2")) |>  mutate(exemplo = "Folha 2")
+  )
+
+
+ggplot(dfp2, aes(V1, V2)) +
+  geom_polygon(aes(fill = exemplo)) +
+  facet_wrap(~exemplo) +
+  # theme_void() +
+  theme(legend.position = "bottom",
+        strip.text = element_blank()) +
+  coord_fixed() +
+  labs(fill = "")
+```
+
+
+# Teoria
+```{r}
+library(ggforce)
+ggplot(dfp2, aes(V1, V2)) +
+  geom_polygon(data = dfp2 |> filter(exemplo == "Folha 1"),
+               fill = "salmon") +
+  geom_path(aes(color = exemplo), size = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "red"),
+                     labels = c("Perímetro original", "Perímetro suavizado")) +
+  theme(legend.position = "bottom",
+        strip.text = element_blank()) +
+  labs(fill = "") +
+  facet_zoom(xlim = c(400, 850), ylim = c(700, 790),
+             zoom.size = 2) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = NULL,
+       y = NULL,
+       color = "")
+ggsave("figs/conceito_pcv.jpg",
+       width = 10,
+       height = 3)
+```
+
+
+# Funçao para pcv
+```{r}
+poly_pcv <- function(x, niter = 500){
+  complexity <- function(x, niter){
+    x_smoth <- poly_smooth(x, niter = niter, plot = FALSE)
+    dists <- sqrt((x[, 1] - x_smoth[, 1]) ^ 2 + (x[, 2] - x_smoth[, 2]) ^ 2)
+    perim <- poly_perimeter(x)
+    pcv <- (sum(dists) * sd(dists) ) / perim
+    return(pcv)
+  }
+  if (inherits(x, "list")) {
+    sapply(x, complexity, niter)
+  } else{
+    return(complexity(x, niter))
+  }
+}
+```
+
+
+# Analisar as imagens
+```{r}
+img <- image_import(pattern = "E", path = "imgs/pcv")
+
+# Contorno
+cont <- lapply(img, function(x){
+  object_contour(x, 
+                 index = "B",
+                 watershed = FALSE)[[1]]
+})
+# Contorno suavizado
+cont_smooth <- poly_smooth(cont, niter = 500, plot = FALSE)
+# 
+for(i in seq_along(img)){
+  jpeg(paste0("imgs/pcv/proc/", names(img)[[i]]), width = 6400, height = 4800)
+  plot(img[[i]])
+  plot_contour(cont[[i]], col = "red", lwd = 2)
+  plot_contour(cont_smooth[[i]], col = "blue", lwd = 2)
+  dev.off()
+}
+
+```
+
+
+
+## Impacto da resolução
+```{r}
+#| eval: false
+
+
+res <- c(50, 100, 150, 200)
+img <- image_import("imgs/pcv/E10_1487.jpg")
+img <- image_import("imgs/pcv/E5_1200.jpg")
+
+plot(img)
+pcv_h <- 
+  sapply(1:length(res), function(x){
+    imgt <- img |> image_resize(rel_size = res[x])
+    cont <- object_contour(imgt, 
+                           index = "B",
+                           watershed = FALSE,
+                           plot = FALSE)
+    print(nrow(imgt))
+    data.frame(pcv = poly_pcv(cont[[1]]),
+               npp = nrow(cont[[1]]),
+               perim = poly_perimeter(cont[[1]]))
+  })
+
+t(pcv_h)
+```
+
+# Application to Flavia dataset
+## Compute the PCV and other shape features
+```{r}
+#| eval: false
+res <- 
+  analyze_objects(pattern = "E",
+                  index = "B",
+                  dir_original = "imgs/flavia",
+                  watershed = FALSE,
+                  fill_hull = TRUE,
+                  parallel = TRUE,
+                  workers = 4,
+                  pcv_niter = 500,
+                  pcv = TRUE)
+meas <- get_measures(res)$results |> separate_col(img, into = c("specie", "img"))
+export(meas, "data/pcv.csv")
+```
+
+
+## Random Forest
+### With PCV
+```{r}
+df_pcv <- 
+  import("data/pcv.csv") |> 
+  select(specie, form_factor, asp_ratio, elongation, pcv)
+
+# best model
+control <-
+  trainControl(method = 'cv',
+               p = 0.7,
+               number = 10,
+               verboseIter = TRUE)
+
+fitpcv <- train(specie ~ .,
+                data = df_pcv,
+                method = 'rf',
+                tuneGrid = expand.grid(.mtry = 7),
+                trControl = control,
+                ntree = 300)
+print(fitpcv)
+cm_pcv <- confusionMatrix.train(fitpcv, norm = "none")
+
+stats_pcv <-
+  confusionMatrix(cm_pcv$table)$byClass |> 
+  as.data.frame() |> 
+  rownames_to_column("specie") |> 
+  mutate(specie = str_remove(specie, "Class: "),
+         type = "Com PCV")
+
+cmcom <- 
+ggplot(data.frame(cm_pcv$table), aes(Prediction, Reference, fill = Freq)) +
+  geom_tile() +
+  labs(x = NULL,
+       y = NULL) +
+  scale_x_discrete(expand = expansion(0)) +
+  scale_y_discrete(expand = expansion(0)) +
+  scale_fill_gradient2() +
+  geom_text(aes(label = Freq),
+            size = 2) +
+  theme(panel.border = element_rect(color = "black", fill = NA),
+        axis.text = element_text( size = 7),
+        axis.text.x = element_text(angle = 90, vjust = 0.5,
+                                   hjust = 1))
+
+
+
+```
+
+### Without PCV
+```{r}
+df <- 
+  import("data/pcv.csv") |> 
+  select(specie, form_factor, asp_ratio, elongation)
+
+# best model
+control <-
+  trainControl(method = 'cv',
+               p = 0.7,
+               number = 10,
+               verboseIter = TRUE)
+
+fit <- train(specie ~ .,
+             data = df,
+             method = 'rf',
+             tuneGrid = expand.grid(.mtry = 7),
+             trControl = control,
+             ntree = 300)
+
+print(fit)
+cm <- confusionMatrix.train(fit, norm = "none")
+stats <-
+  confusionMatrix(cm$table)$byClass |> 
+  as.data.frame() |> 
+  rownames_to_column("specie") |> 
+  mutate(specie = str_remove(specie, "Class: "),
+         type = "Sem PCV")
+
+cmsem <- 
+ggplot(data.frame(cm$table), aes(Prediction, Reference, fill = Freq)) +
+  geom_tile() +
+  labs(x = NULL,
+       y = NULL) +
+  scale_x_discrete(expand = expansion(0)) +
+  scale_y_discrete(expand = expansion(0)) +
+  scale_fill_gradient2() +
+  geom_text(aes(label = Freq),
+            size = 2) +
+  theme(panel.border = element_rect(color = "black", fill = NA),
+        axis.text = element_text( size = 7),
+        axis.text.x = element_text(angle = 90, vjust = 0.5,
+                                   hjust = 1))
+
+arrange_ggplot(cmsem, cmcom, ncol = 1)
+
+ggsave("figs/cm_com.jpg",
+       width = 5,
+       height = 6)
+
+```
+
+
+# PCV
+```{r}
+pcv_esp <- 
+ggplot(df_pcv, aes(x = pcv, y = reorder(specie, -pcv))) +
+  geom_boxplot(fill = "cyan") +
+  theme_minimal() +
+  labs(x = "Perimeter Complexity Value",
+       y = "Espécie")
+
+ggsave("figs/pcv_flavia.jpg",
+       width = 6,
+       height = 6)
+```
+
+# Correlação
+```{r}
+corr_coef(df_pcv) |> network_plot(show = "all")
+
+library(factoextra)
+library(FactoMineR)
+pca <- PCA(df_pcv,
+           quali.sup = 1)
+fviz_pca_biplot(pca,
+                habillage = 1,
+                geom.ind = "point") +
+  theme(legend.position = "none")
+
+dfm <- 
+  df_pcv |> mean_by(specie)
+```
+
+# Accuracy
+```{r}
+dfplot <- 
+  bind_rows(stats, stats_pcv)
+
+acc <- 
+  ggplot(dfplot, aes(`Balanced Accuracy`, reorder(specie, -`Balanced Accuracy`), fill = type)) +
+  geom_col(position = position_dodge(),
+           alpha = 1) +
+  
+  theme_minimal() +
+  labs(y = "Espécie",
+       x = "Acurácia balanceada",
+       fill = "") +
+  theme(legend.position = "bottom")
+
+```
+
+# Incremento
+```{r}
+dfinc <- 
+  dfplot |> 
+  select(specie, type, `Balanced Accuracy`) |> 
+  pivot_wider(names_from = type, values_from = `Balanced Accuracy`) |> 
+  mutate(increment = (`Com PCV` - `Sem PCV`) / `Sem PCV` * 100,
+         label = ifelse(increment > 30, specie, NA))
+
+increment <- 
+  ggplot(dfinc, aes(y = increment)) +
+  geom_boxplot(fill = "cyan") +
+  labs(y = "Incremento na Acurácia Balanceada com o uso do PCV (%)",
+       x = NULL) +
+  stat_summary(fun = mean,
+               aes(x = 0),
+               geom = "point",
+               shape = 17,
+               size = 3) +
+  theme_minimal() +
+  geom_text(aes(x = 0, y = increment, label = label),
+            hjust = -0.5) +
+  theme(axis.text.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank()) 
+
+library(metan)
+arrange_ggplot(pcv_esp, acc, increment,
+               ncol = 3,
+               widths = c(0.5, 0.5, 0.1),
+               tag_levels = "a")
+
+ggsave("figs/pcv_accuracia_flavia.jpg",
+       width = 12,
+       height = 6)
+```
+
+# Section info
+```{r}
+sessionInfo()
+```
+

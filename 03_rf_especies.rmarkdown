@@ -1,0 +1,242 @@
+---
+title: "01: Model grain"
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = FALSE,
+                      comment = "##",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+
+
+# Pacotes
+
+To reproduce the examples of this material, the R packages the following packages are needed.
+
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(performance)
+library(caret)
+library(metan)
+library(pliman)
+```
+
+
+
+# Dados
+
+```{r}
+img <- image_import("imgs/flavia/E8_1391.jpg")
+plot(img)
+ind <- image_index(img, "R")[[1]]
+otsu(ind@.Data[!is.infinite(ind@.Data) & !is.na(ind@.Data)])
+res <- 
+  analyze_objects(pattern = "E",
+                  dir_original = "D:/Desktop/UFSC/projetos/pesquisa/melhoramento_linhaca/linhagens_2023/68rbras/imgs/flavia",
+                  index = "B",
+                  watershed = FALSE,
+                  efourier = TRUE,
+                  fill_hull = TRUE,
+                  parallel = TRUE,
+                  object_index = "DGCI",
+                  haralick = TRUE,
+                  pcv = TRUE,
+                  veins = TRUE,
+                  workers = 4)
+
+coefs <- 
+  get_measures(res, digits = 10)[[1]] |> 
+  as.data.frame() |> 
+  separate_wider_delim(img, delim = "_", names = c("specie", "leaf"))
+veins <- res$veins |> separate_wider_delim(img, delim = "_", names = c("specie", "leaf"))
+
+df <- left_join(coefs, veins)
+export(df, "data/flavia_rf.csv")
+```
+
+
+# Modelo RF
+## Cenário 1
+
+```{r}
+df <- import("data/flavia_rf.csv")
+
+# cenário 1
+# sem escalas - somente com fatores de forma
+c1 <-
+  df |>
+  select(-c(B1, C1)) |> 
+  dplyr::select(specie,
+                # area, perimeter, radius_sd, major_axis, minor_axis,  # scale-dependent
+                eccentricity, solidity, elongation, circularity_norm, form_factor, narrow_factor,     # shape
+                # asm:f13, # texture
+                # DGCI, # color
+                # A2:D10,
+                # pcv,
+                # prop_veins
+  )
+
+# best model
+control <-
+  trainControl(method = 'cv',
+               p = 0.7,
+               number = 10,
+               verboseIter = TRUE)
+fit1 <- train(specie ~ .,
+             data = c1,
+             method = 'rf',
+             tuneGrid = expand.grid(.mtry = 7),
+             trControl = control,
+             ntree = 300)
+
+# trocar para os outros cenários
+print(fit1)
+cm1 <- confusionMatrix.train(fit1, norm = "none")
+statsc1 <- confusionMatrix(cm1$table)
+stats_by_specie_c1 <- 
+  statsc1$byClass |> 
+  data.frame() |> 
+  select(Precision, Recall, F1, Balanced.Accuracy) |> 
+  desc_stat(stats = c("min, mean, max")) |> 
+  mutate(cenário = "C1")
+
+
+```
+
+
+
+# Cenário 2
+
+
+```{r}
+
+# cenário 2
+# com escalas
+# todas as variáveis de shape
+
+c2 <-
+  df |>
+  select(-c(B1, C1)) |> 
+  dplyr::select(specie,
+                area, perimeter, radius_sd, major_axis, minor_axis,  # scale-dependent
+                eccentricity, solidity, elongation, circularity_norm, form_factor, narrow_factor,     # shape
+                A2:D10,
+                pcv
+                # asm:f13, # texture
+                # DGCI, # color
+                # prop_veins
+  )
+
+# best model
+control <-
+  trainControl(method = 'cv',
+               p = 0.7,
+               number = 10,
+               verboseIter = TRUE)
+fit2 <- train(specie ~ .,
+             data = c2,
+             method = 'rf',
+             tuneGrid = expand.grid(.mtry = 7),
+             trControl = control,
+             ntree = 300)
+print(fit2)
+
+cm2 <- confusionMatrix.train(fit2, norm = "none")
+statsc2 <- confusionMatrix(cm2$table)
+stats_by_specie_c2 <- 
+  statsc2$byClass |> 
+  data.frame() |> 
+select(Precision, Recall, F1, Balanced.Accuracy) |> 
+  desc_stat(stats = c("min, mean, max")) |> 
+  mutate(cenário = "C2")
+```
+
+
+# Cenário 3
+
+
+```{r}
+
+c3 <-
+  df |>
+  select(-c(B1, C1)) |> 
+  dplyr::select(specie,
+                area, perimeter, radius_sd, major_axis, minor_axis,  # scale-dependent
+                eccentricity, solidity, elongation, circularity_norm, form_factor, narrow_factor,     # shape
+                A2:D10,
+                pcv,
+                asm:f13, # texture
+                DGCI, # color
+                prop_veins
+  )
+
+# best model
+control <-
+  trainControl(method = 'cv',
+               p = 0.7,
+               number = 10,
+               verboseIter = TRUE)
+fit3 <- train(specie ~ .,
+             data = c3,
+             method = 'rf',
+             tuneGrid = expand.grid(.mtry = 7),
+             trControl = control,
+             ntree = 300)
+print(fit3)
+cm3 <- confusionMatrix.train(fit3, norm = "none")
+statsc3 <- confusionMatrix(cm3$table)
+stats_by_specie_c3 <- 
+  statsc3$byClass |> 
+  data.frame() |> 
+select(Precision, Recall, F1, Balanced.Accuracy) |> 
+  desc_stat(stats = c("min, mean, max")) |> 
+  mutate(cenário = "C3")
+```
+
+
+
+
+# Juntando os resultados
+
+```{r}
+res <- bind_rows(list(stats_by_specie_c1, stats_by_specie_c2, stats_by_specie_c3))
+export(res, "data/stats_rf.xlsx")
+```
+
+
+
+# Matriz de confusão cenário 3
+
+```{r}
+ggplot(data.frame(cm3$table), aes(Prediction, Reference, fill = Freq)) +
+  geom_tile() +
+  labs(x = NULL,
+       y = NULL) +
+  scale_x_discrete(expand = expansion(0)) +
+  scale_y_discrete(expand = expansion(0)) +
+  scale_fill_gradient2() +
+  geom_text(aes(label = Freq),
+            size = 2) +
+  theme(panel.border = element_rect(color = "black", fill = NA),
+        axis.text = element_text( size = 7),
+        axis.text.x = element_text(angle = 90, vjust = 0.5,
+                                   hjust = 1))
+
+ggsave("figs/confusion.jpg",
+       width = 5,
+       height = 5)
+```
+
+
+# Section info
+
+```{r}
+sessionInfo()
+```
+

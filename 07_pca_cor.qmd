@@ -1,0 +1,152 @@
+---
+title: "07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados"
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = FALSE,
+                      comment = "##",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+
+# Pacotes
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(factoextra)
+library(metan)
+library(FactoMineR)
+library(pliman)
+
+```
+
+# Dados
+```{r}
+dfbind <- import("data/df_cor_pca.xlsx")
+```
+
+
+## Exploração
+```{r}
+dfplot <- 
+  dfbind |> 
+  group_by(GEN, tipo) |> 
+  summarise(Rm = sum(R * prop),
+            Gm = sum(G * prop),
+            Bm = sum(B * prop),
+            Rv = sd(R) / mean(R),
+            Gv = sd(G) / mean(G),
+            Bv = sd(B) / mean(B))
+
+dfhist_media <- 
+  dfplot |> 
+  rename(R = Rm, G = Gm, B = Bm) |> 
+  select(tipo, R:B) |> 
+  pivot_longer(cols = R:B,
+               names_to = "rgb",
+               values_to = "reflectancia") |> 
+  mutate(rgb = fct_relevel(rgb, "R", "G", "B"))
+
+
+# exploração
+ggplot(dfhist_media, aes(x = reflectancia, fill = tipo)) +
+  geom_density(alpha = 0.7) +
+  facet_wrap(~rgb) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "bottom")
+
+ggsave("figs/density.jpg",
+       height = 3,
+       width = 8)
+```
+
+## PCA
+```{r}
+
+dfpca <- 
+  dfplot |> 
+  rename(R = Rm, G = Gm, B = Bm) |> 
+  column_to_rownames("GEN") |> 
+  mutate(BI = sqrt((R^2 + G^2 + B^2) / 3),
+         SCI = (R - G) / (R + G),
+         NGRDI = (G-R)/(G+R),
+         HUE = atan(2*(B-G-R)/30.5*(G-R)),
+         RI = (R^2 / (B * G^3)),
+         .after = tipo)
+
+pcam <- PCA(dfpca, quali.sup = 1)
+
+
+# Contribution
+fviz_contrib(pcam, "var")
+ggsave("figs/biplot_cor_contrib.jpg",
+       height = 6,
+       width = 7)
+
+fviz_pca_biplot(pcam,
+                labelsize = 3,
+                # repel = TRUE,
+                addEllipses = TRUE,
+                habillage = 1)
+ggsave("figs/biplot_cor.jpg",
+       height = 6,
+       width = 7)
+
+
+```
+
+
+# Distância
+```{r}
+dist <- dist(dfpca[, -1])
+distd <- clustering(dfpca |> filter(tipo == "Dourada") |> select(-tipo),
+                    scale = TRUE)
+c_dourada <-
+  fviz_dend(distd$hc, k = 6, cex = 0.6, main = "Dourada") +
+  geom_hline(yintercept = distd$cutpoint) +
+  ylim(c(-1, 8))
+
+
+distm <- clustering(dfpca |> filter(tipo == "Marrom") |> select(-tipo),
+                    scale = TRUE)
+c_marrom <-
+  fviz_dend(distm$hc, k = 5, cex = 0.6, main = "Marrom") +
+  geom_hline(yintercept = distm$cutpoint) +
+  ylim(c(-1, 8))
+sd(distm$distance) / mean(distm$distance)
+
+arrange_ggplot(c_dourada, c_marrom, ncol = 2)
+ggsave("figs/dendograma_cor.jpg",
+       height = 3,
+       width = 8)
+```
+
+
+
+# Indice
+```{r}
+marr <- 
+  image_import("imgs/marrom.jpg") |> 
+  image_resize(30)
+dou <- 
+  image_import("imgs/dourada.jpg") |> 
+  image_resize(width = 1054, height = 704)
+bind <- EBImage::abind(marr, dou, along = 1)
+
+image_index(bind, index = "R")
+image_index(bind, index = "G")
+image_index(bind, index = "B")
+
+```
+
+
+# Section info
+```{r}
+sessionInfo()
+```
+

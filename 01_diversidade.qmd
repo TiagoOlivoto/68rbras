@@ -1,0 +1,184 @@
+---
+title: "01: Diversidade genética em genótipos de linho (Linum usitatissimum, L.) cultivados em Florianópolis-SC"
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = FALSE,
+                      comment = "##",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+
+# Pacotes
+
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(factoextra)
+library(caret)
+library(metan)
+library(DescTools)
+library(pliman)
+
+```
+
+# Analisar as imagens
+```{r}
+#| eval: false
+
+
+img <- image_import("imgs/cápsulas/36_Cápsulas_1_2023-12-19-03-12-31.jpg")
+plot(img)
+image_segment(img, index = "GRAY")
+
+res <- 
+  analyze_objects(pattern = "Cáp",
+                  dir_original = "imgs/cápsulas",
+                  filter = 3,
+                  marker = "point",
+                  reference = TRUE,
+                  reference_larger = TRUE,
+                  reference_area = 3,
+                  parallel = FALSE,
+                  workers = 3,
+                  plot = FALSE,
+                  index = "GRAY")
+
+df <- 
+  get_measures(res)$results |> 
+  separate_wider_delim(img, delim = "_", names = "INDIVIDUO", too_many = "drop")
+
+```
+
+
+# Dados
+```{r}
+df <- import("data/data_raw.csv")
+dfplan <- import("data/data_lab.xlsx") 
+dfmean <- 
+  df |> 
+  group_by(INDIVIDUO, TIPO) |>
+  summarise(n = n(),
+            diam = mean(diam_mean, na.rm = TRUE),
+            area = mean(area, na.rm = TRUE),
+            perimeter = mean(perimeter, na.rm = TRUE),
+            caliper = mean(caliper, na.rm = TRUE)) |>
+  pivot_wider(names_from = TIPO,
+              values_from = c(n, diam, area, perimeter, caliper))
+
+dfan <- 
+  left_join(dfmean, dfplan) |> 
+  remove_rows_na() |> 
+  mean_by(GEN, TIPO)
+
+```
+
+
+# Matriz de distâncias
+# Douradas 
+```{r}
+marrom <- 
+  dfan |> 
+  filter(TIPO == "MARROM") |> 
+  select(-c(INDIVIDUO, ROW, COL, PLOT, TIPO)) |> 
+  column_to_rownames("GEN")
+
+dist_marrom <- clustering(marrom, nclust = 3)
+dist_marrom$cophenetic
+dendma <- 
+  fviz_dend(dist_marrom$hc, k = 3,
+            k_colors = c("#619CFF", "#00BA38", "#F8766D" ),
+            label_cols = c(rep("#619CFF", 20),
+                           rep("#00BA38", 5),
+                           rep("#F8766D", 2)))
+dendma
+```
+
+
+# Douradas 
+## Distâncias
+```{r}
+dourada <- 
+  dfan |> 
+  filter(TIPO == "DOURADA") |> 
+  select(-c(INDIVIDUO, ROW, COL, PLOT, TIPO)) |> 
+  column_to_rownames("GEN")
+
+dist_dourada <- metan::clustering(dourada, nclust = 3)
+
+denddo <- fviz_dend(dist_dourada$hc, k = 3)
+
+
+arrange_ggplot(denddo, dendma,
+               ncol = 1,
+               tag_levels = "a")
+
+ggsave("figs/dendrograma.jpg",
+       height = 6.5,
+       width = 7)
+
+```
+
+
+## Médias
+```{r}
+dfplot <- 
+  bind_rows(
+    dist_dourada$data |> mutate(tipo = "Dourada"),
+    dist_marrom$data |> mutate(tipo = "Marrom")
+  ) |> 
+  rownames_to_column("Genótipo") |> 
+  metan::as_factor(groups)
+
+mg <-
+ggplot(dfplot, aes(groups, MG, fill = groups)) +
+  geom_boxplot() +
+  facet_wrap(~tipo) +
+  labs(x = "Clusters",
+       y = "Massa de grãos por planta (g)",
+       fill = "Clusters")+
+  scale_fill_manual(values =c("#619CFF", "#00BA38", "#F8766D"))
+
+nc <- 
+  ggplot(dfplot, aes(groups, n_Cápsulas, fill = groups)) +
+  geom_boxplot() +
+  facet_wrap(~tipo) +
+  labs(x = "Clusters",
+       y = "Número de cápsulas por planta",
+       fill = "Clusters")+
+  scale_fill_manual(values =c("#619CFF", "#00BA38", "#F8766D"))
+
+ap <- 
+  ggplot(dfplot, aes(groups, AP, fill = groups)) +
+  geom_boxplot() +
+  facet_wrap(~tipo) +
+  labs(x = "Clusters",
+       y = "Altura de planta (cm)",
+       fill = "Clusters")+
+  scale_fill_manual(values =c("#619CFF", "#00BA38", "#F8766D"))
+
+arrange_ggplot(mg, nc, ap, 
+               tag_levels = "a",
+               guides = "collect")
+ggsave("figs/medias_divergencia.jpg",
+       width = 6,
+       height = 4)
+# correlação
+corr_plot(dfplot, MG, AP, n_Cápsulas, 
+          col.by = tipo)
+ggsave("figs/correlacao_divergencia.jpg",
+       width = 6,
+       height = 4)
+```
+
+
+
+# Section info
+```{r}
+sessionInfo()
+```
+

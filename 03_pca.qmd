@@ -1,0 +1,91 @@
+---
+  title: "03: Análise de Componentes Principais para Caracterização e Priorização de Variáveis em Genótipos de Linho (Linum usitatissimum, L.)"
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = FALSE,
+                      comment = "##",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+
+# Pacotes
+
+
+```{r warning=FALSE, message=FALSE}
+library(rio)
+library(tidyverse)
+library(factoextra)
+library(FactoMineR)
+library(caret)
+library(metan)
+library(ggridges)
+```
+
+
+# PCA
+```{r}
+df <- 
+  import("data/data_pca.xlsx") |> 
+  mutate(IC = MG / MC) |> 
+  column_to_rownames("GEN")
+
+# AP altura de planta (cm)
+# AC altura de cápsula (cm)
+# NR numero de ramificações
+# MC massa de cápsula (g) 
+# MG massa de grãos (g)
+# NC numero de capsulas
+# NG numero de graos
+# DC diametro de capsula
+# LG largura de grao
+# CG comprimento de grao
+
+```
+
+# Correlação
+```{r}
+corr <- corr_coef(df)
+network_plot(corr)
+ggsave("figs/correl_pca.jpg")
+```
+
+
+# PCA
+```{r}
+pca <- PCA(df,  quali.sup = 1)
+
+fviz_contrib(pca, "var", axes = 1:2)
+
+fviz_pca_biplot(pca, 
+                repel = TRUE,
+                habillage = 1)
+
+ggsave("figs/biplot.jpg")
+```
+
+# Distribution
+```{r}
+dfp <- 
+  df |> 
+  select(TIPO, NC, NG, CG, LG, IC) |> 
+  pivot_longer(-TIPO)
+ggplot(dfp, aes(value, y = TIPO, fill = TIPO)) +
+  geom_density_ridges(alpha = 0.8) +
+  facet_wrap(~name, scales = "free") +
+  labs(x = "Valor observado",
+       y = "Tipo de linhaça",
+       fill = "") +
+  theme(legend.position = "bottom",
+        panel.grid.minor = element_blank())
+ggsave("figs/density_biplot.jpg")
+```
+
+# Section info
+```{r}
+sessionInfo()
+```
+
