@@ -10,6 +10,30 @@
 
 Neste website você pode encontrar os dados e scripts utilizados nas análises dos seguintes trabalhos apresentados na 68$^a$ Reunião Anual da Região Brasileira da Sociedade Internacional de Biometria (RBras)
 
+# Pesquisadores {.unnumbered}
+
+```{r}
+#| echo: false
+slickR::slickR(
+  list.files("./imgs/pesquisadores",full.names = TRUE,pattern = 'png'),
+  height = 200,
+  width = '95%',
+  objLinks = c("https://www.linkedin.com/in/carlos-eduardo-forcelini-assoni-50b78a26a/",
+               "https://www.linkedin.com/in/olivoto/",
+               "https://www.linkedin.com/in/paulo-romeroo/",
+               "https://www.linkedin.com/in/jos%C3%A9-eduardo-pimentel-e-silva-b5961722a/",
+               "http://lattes.cnpq.br/2778715590464122",
+               "https://www.researchgate.net/profile/Kamilly-Tonet",
+               "https://www.linkedin.com/in/felipe-rosauro-3133bb1a7/",
+               "https://www.linkedin.com/in/matheus-l-40404219a/"
+               )
+) +
+  slickR::settings(dots = TRUE,
+                   autoplay = TRUE, 
+                   fade = TRUE,
+                   focusOnSelect = TRUE,
+                   autoplaySpeed = 3000)
+```
 
 # Como reproduzir? {.unnumbered}
 
