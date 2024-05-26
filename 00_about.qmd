@@ -1,5 +1,9 @@
 
-![](figs/logo.png)
+![](figs/logo.png)    
+
+
+[![](https://zenodo.org/badge/758995037.svg)](https://zenodo.org/doi/10.5281/zenodo.11315766)
+
 
 
 # Sobre este material {.unnumbered}
