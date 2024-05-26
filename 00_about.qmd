@@ -9,7 +9,8 @@ Neste website você pode encontrar os dados e scripts utilizados nas análises d
 
 # Como reproduzir? {.unnumbered}
 
--   Faça o [Download dos dados]() do repositório github;
+-   Faça o [Download dos dados](https://github.com/TiagoOlivoto/68rbras/archive/refs/heads/master.zip) do repositório github;
+-   Descompacte para uma pasta;
 -   Abra o projeto `68rbras.Rproj` no RStudio;
 -   Opcionalmente, altere funções e argumentos;
 -   Re-knit o documento para ver os resultados.

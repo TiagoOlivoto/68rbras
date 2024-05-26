@@ -187,16 +187,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05_pcv.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">01: Model grain</span></a>
+ <span class="menu-text">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</span></a>
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">06_produtividade_qualidade.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./06_prod_qualidade.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./07_pca_cor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_machinelearning_bd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08: Classificação automatizada de cores de batata-doce (Ipomoea batatas. L) por modelos combinados de aprendizado de máquina</span></a>
   </div>
 </li>
     </ul>
@@ -233,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header><section id="pacotes" class="level1" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> Pacotes</h1>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gesistsa/rio">rio</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gesistsa.github.io/rio/">rio</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/TiagoOlivoto/metan">metan</a></span><span class="op">)</span></span>
@@ -244,7 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="header-section-number">2</span> Dados</h1>
 <div class="cell">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"data/dados_capsulas.xlsx"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="http://gesistsa.github.io/rio/reference/import.html">import</a></span><span class="op">(</span><span class="st">"data/dados_capsulas.xlsx"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/metan/man/utils_na_zero.html">remove_rows_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/metan/man/utils_stats.html">mean_by</a></span><span class="op">(</span><span class="va">GEN</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -316,7 +325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>       height <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>       width <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rio/man/export.html">export</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="http://gesistsa.github.io/rio/reference/export.html">export</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
 <span>  mgidi <span class="op">=</span> <span class="va">mgidi_mod</span><span class="op">$</span><span class="va">MGIDI</span>,</span>
 <span>  dif_sel <span class="op">=</span> <span class="va">mgidi_mod</span><span class="op">$</span><span class="va">sel_dif</span>,</span>
 <span>  pca <span class="op">=</span> <span class="va">mgidi_mod</span><span class="op">$</span><span class="va">PCA</span>,</span>
@@ -374,22 +383,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">##  [1] pliman_2.1.0.9000 DescTools_0.99.54 metan_1.18.0      factoextra_1.0.7 </span></span>
 <span><span class="co">##  [5] lubridate_1.9.3   forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4      </span></span>
 <span><span class="co">##  [9] purrr_1.0.2       readr_2.1.5       tidyr_1.3.1       tibble_3.2.1     </span></span>
-<span><span class="co">## [13] ggplot2_3.5.0     tidyverse_2.0.0   rio_1.0.1        </span></span>
+<span><span class="co">## [13] ggplot2_3.5.1     tidyverse_2.0.0   rio_1.1.0        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] mathjaxr_1.6-0       RColorBrewer_1.1-3   rstudioapi_0.16.0   </span></span>
-<span><span class="co">##   [4] jsonlite_1.8.8       magrittr_2.0.3       farver_2.1.1        </span></span>
-<span><span class="co">##   [7] nloptr_2.0.3         rmarkdown_2.26       ragg_1.3.0          </span></span>
-<span><span class="co">##  [10] vctrs_0.6.5          minqa_1.2.6          RCurl_1.98-1.14     </span></span>
-<span><span class="co">##  [13] base64enc_0.1-3      terra_1.7-71         htmltools_0.5.8     </span></span>
-<span><span class="co">##  [16] raster_3.6-26        cellranger_1.1.0     KernSmooth_2.23-22  </span></span>
+<span><span class="co">##   [4] jsonlite_1.8.8       magrittr_2.0.3       farver_2.1.2        </span></span>
+<span><span class="co">##   [7] nloptr_2.0.3         rmarkdown_2.27       ragg_1.3.2          </span></span>
+<span><span class="co">##  [10] vctrs_0.6.5          minqa_1.2.7          RCurl_1.98-1.14     </span></span>
+<span><span class="co">##  [13] base64enc_0.1-3      terra_1.7-78         htmltools_0.5.8     </span></span>
+<span><span class="co">##  [16] raster_3.6-26        cellranger_1.1.0     KernSmooth_2.23-24  </span></span>
 <span><span class="co">##  [19] htmlwidgets_1.6.4    plyr_1.8.9           rootSolve_1.8.2.4   </span></span>
 <span><span class="co">##  [22] mime_0.12            lifecycle_1.0.4      pkgconfig_2.0.3     </span></span>
 <span><span class="co">##  [25] Matrix_1.6-5         R6_2.5.1             fastmap_1.1.1       </span></span>
 <span><span class="co">##  [28] shiny_1.8.1.1        digest_0.6.35        Exact_3.2           </span></span>
 <span><span class="co">##  [31] numDeriv_2016.8-1.1  colorspace_2.1-0     GGally_2.2.1        </span></span>
 <span><span class="co">##  [34] mapview_2.11.2       patchwork_1.2.0      leafem_0.2.3        </span></span>
-<span><span class="co">##  [37] textshaping_0.3.7    crosstalk_1.2.1      labeling_0.4.3      </span></span>
+<span><span class="co">##  [37] textshaping_0.4.0    crosstalk_1.2.1      labeling_0.4.3      </span></span>
 <span><span class="co">##  [40] fansi_1.0.6          timechange_0.3.0     httr_1.4.7          </span></span>
 <span><span class="co">##  [43] polyclip_1.10-6      abind_1.4-5          compiler_4.3.3      </span></span>
 <span><span class="co">##  [46] proxy_0.4-27         withr_3.0.0          tiff_0.1-12         </span></span>
@@ -405,15 +414,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">##  [76] hms_1.1.3            sp_2.1-3             utf8_1.2.4          </span></span>
 <span><span class="co">##  [79] BiocGenerics_0.46.0  ggrepel_0.9.5        pillar_1.9.0        </span></span>
 <span><span class="co">##  [82] later_1.3.2          splines_4.3.3        tweenr_2.0.3        </span></span>
-<span><span class="co">##  [85] lattice_0.22-5       tidyselect_1.2.1     locfit_1.5-9.9      </span></span>
-<span><span class="co">##  [88] knitr_1.46           stats4_4.3.3         xfun_0.43           </span></span>
+<span><span class="co">##  [85] lattice_0.22-6       tidyselect_1.2.1     locfit_1.5-9.9      </span></span>
+<span><span class="co">##  [88] knitr_1.46           stats4_4.3.3         xfun_0.44           </span></span>
 <span><span class="co">##  [91] expm_0.999-9         stringi_1.8.3        fftwtools_0.9-11    </span></span>
-<span><span class="co">##  [94] yaml_2.3.8           boot_1.3-29          evaluate_0.23       </span></span>
-<span><span class="co">##  [97] codetools_0.2-19     cli_3.6.1            xtable_1.8-4        </span></span>
-<span><span class="co">## [100] systemfonts_1.0.6    munsell_0.5.1        Rcpp_1.0.12         </span></span>
+<span><span class="co">##  [94] yaml_2.3.8           boot_1.3-30          evaluate_0.23       </span></span>
+<span><span class="co">##  [97] codetools_0.2-20     cli_3.6.1            xtable_1.8-4        </span></span>
+<span><span class="co">## [100] systemfonts_1.1.0    munsell_0.5.1        Rcpp_1.0.12         </span></span>
 <span><span class="co">## [103] readxl_1.4.3         png_0.1-8            exactextractr_0.10.0</span></span>
-<span><span class="co">## [106] jpeg_0.1-10          bitops_1.0-7         lme4_1.1-35.2       </span></span>
-<span><span class="co">## [109] mvtnorm_1.2-4        lmerTest_3.1-3       scales_1.3.0        </span></span>
+<span><span class="co">## [106] jpeg_0.1-10          bitops_1.0-7         lme4_1.1-35.3       </span></span>
+<span><span class="co">## [109] mvtnorm_1.2-5        lmerTest_3.1-3       scales_1.3.0        </span></span>
 <span><span class="co">## [112] e1071_1.7-14         writexl_1.5.0        rlang_1.1.3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
@@ -825,7 +834,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   </div>
   <div class="nav-page nav-page-next">
       <a href="./05_pcv.html" class="pagination-link">
-        <span class="nav-page-text">01: Model grain</span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">

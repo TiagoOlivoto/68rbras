@@ -60,6 +60,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./07_pca_cor.html" rel="next">
+<link href="./05_pcv.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -142,7 +144,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06_prod_qualidade.html">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -185,16 +187,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05_pcv.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">01: Model grain</span></a>
+ <span class="menu-text">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</span></a>
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">06_produtividade_qualidade.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./06_prod_qualidade.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./07_pca_cor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_machinelearning_bd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08: Classificação automatizada de cores de batata-doce (Ipomoea batatas. L) por modelos combinados de aprendizado de máquina</span></a>
   </div>
 </li>
     </ul>
@@ -231,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header><section id="pacotes" class="level1" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> Pacotes</h1>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gesistsa/rio">rio</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gesistsa.github.io/rio/">rio</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://agronomiar.github.io/AgroR_package/index.html">AgroR</a></span><span class="op">)</span></span>
@@ -240,7 +251,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section><section id="dados" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> Dados</h1>
 <div class="cell">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"data/prod_quali.xlsx"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://gesistsa.github.io/rio/reference/import.html">import</a></span><span class="op">(</span><span class="st">"data/prod_quali.xlsx"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="ácidos-graxos" class="level1" data-number="3"><h1 data-number="3">
 <span class="header-section-number">3</span> Ácidos graxos</h1>
@@ -797,42 +808,42 @@ DPPH_it &lt;-
 <span><span class="co">##  [1] FactoMineR_2.11  metan_1.18.0     AgroR_1.3.6      factoextra_1.0.7</span></span>
 <span><span class="co">##  [5] lubridate_1.9.3  forcats_1.0.0    stringr_1.5.1    dplyr_1.1.4     </span></span>
 <span><span class="co">##  [9] purrr_1.0.2      readr_2.1.5      tidyr_1.3.1      tibble_3.2.1    </span></span>
-<span><span class="co">## [13] ggplot2_3.5.0    tidyverse_2.0.0  rio_1.0.1       </span></span>
+<span><span class="co">## [13] ggplot2_3.5.1    tidyverse_2.0.0  rio_1.1.0       </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] dunn.test_1.3.6      gridExtra_2.3        sandwich_3.1-0      </span></span>
 <span><span class="co">##   [4] readxl_1.4.3         rlang_1.1.3          magrittr_2.0.3      </span></span>
-<span><span class="co">##   [7] multcomp_1.4-25      compiler_4.3.3       systemfonts_1.0.6   </span></span>
+<span><span class="co">##   [7] multcomp_1.4-25      compiler_4.3.3       systemfonts_1.1.0   </span></span>
 <span><span class="co">##  [10] vctrs_0.6.5          pkgconfig_2.0.3      crayon_1.5.2        </span></span>
-<span><span class="co">##  [13] fastmap_1.1.1        backports_1.4.1      labeling_0.4.3      </span></span>
-<span><span class="co">##  [16] utf8_1.2.4           rmarkdown_2.26       tzdb_0.4.0          </span></span>
-<span><span class="co">##  [19] nloptr_2.0.3         ragg_1.3.0           xfun_0.43           </span></span>
+<span><span class="co">##  [13] fastmap_1.1.1        backports_1.5.0      labeling_0.4.3      </span></span>
+<span><span class="co">##  [16] utf8_1.2.4           rmarkdown_2.27       tzdb_0.4.0          </span></span>
+<span><span class="co">##  [19] nloptr_2.0.3         ragg_1.3.2           xfun_0.44           </span></span>
 <span><span class="co">##  [22] flashClust_1.01-2    jsonlite_1.8.8       tweenr_2.0.3        </span></span>
-<span><span class="co">##  [25] broom_1.0.5          cluster_2.1.6        R6_2.5.1            </span></span>
+<span><span class="co">##  [25] broom_1.0.6          cluster_2.1.6        R6_2.5.1            </span></span>
 <span><span class="co">##  [28] stringi_1.8.3        RColorBrewer_1.1-3   GGally_2.2.1        </span></span>
-<span><span class="co">##  [31] car_3.1-2            boot_1.3-29          lmtest_0.9-40       </span></span>
-<span><span class="co">##  [34] cellranger_1.1.0     numDeriv_2016.8-1.1  estimability_1.5    </span></span>
+<span><span class="co">##  [31] car_3.1-2            boot_1.3-30          lmtest_0.9-40       </span></span>
+<span><span class="co">##  [34] cellranger_1.1.0     numDeriv_2016.8-1.1  estimability_1.5.1  </span></span>
 <span><span class="co">##  [37] Rcpp_1.0.12          knitr_1.46           zoo_1.8-12          </span></span>
 <span><span class="co">##  [40] R.utils_2.12.3       Matrix_1.6-5         splines_4.3.3       </span></span>
 <span><span class="co">##  [43] timechange_0.3.0     tidyselect_1.2.1     rstudioapi_0.16.0   </span></span>
-<span><span class="co">##  [46] abind_1.4-5          yaml_2.3.8           codetools_0.2-19    </span></span>
-<span><span class="co">##  [49] lattice_0.22-5       lmerTest_3.1-3       plyr_1.8.9          </span></span>
+<span><span class="co">##  [46] abind_1.4-5          yaml_2.3.8           codetools_0.2-20    </span></span>
+<span><span class="co">##  [49] lattice_0.22-6       lmerTest_3.1-3       plyr_1.8.9          </span></span>
 <span><span class="co">##  [52] withr_3.0.0          coda_0.19-4.1        evaluate_0.23       </span></span>
-<span><span class="co">##  [55] survival_3.5-8       ggstats_0.6.0        polyclip_1.10-6     </span></span>
+<span><span class="co">##  [55] survival_3.6-4       ggstats_0.6.0        polyclip_1.10-6     </span></span>
 <span><span class="co">##  [58] ggpubr_0.6.0         pillar_1.9.0         carData_3.0-5       </span></span>
 <span><span class="co">##  [61] DT_0.33              nortest_1.0-4        generics_0.1.3      </span></span>
 <span><span class="co">##  [64] mathjaxr_1.6-0       hms_1.1.3            munsell_0.5.1       </span></span>
-<span><span class="co">##  [67] scales_1.3.0         minqa_1.2.6          gtools_3.9.5        </span></span>
+<span><span class="co">##  [67] scales_1.3.0         minqa_1.2.7          gtools_3.9.5        </span></span>
 <span><span class="co">##  [70] xtable_1.8-4         leaps_3.1            glue_1.7.0          </span></span>
-<span><span class="co">##  [73] scatterplot3d_0.3-44 emmeans_1.10.1       tools_4.3.3         </span></span>
-<span><span class="co">##  [76] lme4_1.1-35.2        ggsignif_0.6.4       mvtnorm_1.2-4       </span></span>
+<span><span class="co">##  [73] scatterplot3d_0.3-44 emmeans_1.10.2       tools_4.3.3         </span></span>
+<span><span class="co">##  [76] lme4_1.1-35.3        ggsignif_0.6.4       mvtnorm_1.2-5       </span></span>
 <span><span class="co">##  [79] cowplot_1.1.3        grid_4.3.3           plotrix_3.8-4       </span></span>
 <span><span class="co">##  [82] colorspace_2.1-0     nlme_3.1-164         patchwork_1.2.0     </span></span>
-<span><span class="co">##  [85] ggforce_0.4.2        cli_3.6.1            textshaping_0.3.7   </span></span>
+<span><span class="co">##  [85] ggforce_0.4.2        cli_3.6.1            textshaping_0.4.0   </span></span>
 <span><span class="co">##  [88] fansi_1.0.6          gtable_0.3.5         rstatix_0.7.2       </span></span>
 <span><span class="co">##  [91] R.methodsS3_1.8.2    digest_0.6.35        ggrepel_0.9.5       </span></span>
 <span><span class="co">##  [94] TH.data_1.1-2        htmlwidgets_1.6.4    drc_3.0-1           </span></span>
-<span><span class="co">##  [97] farver_2.1.1         htmltools_0.5.8      R.oo_1.26.0         </span></span>
+<span><span class="co">##  [97] farver_2.1.2         htmltools_0.5.8      R.oo_1.26.0         </span></span>
 <span><span class="co">## [100] lifecycle_1.0.4      multcompView_0.1-10  MASS_7.3-60.0.1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
@@ -1237,7 +1248,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="./05_pcv.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./07_pca_cor.html" class="pagination-link">
+        <span class="nav-page-text">07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina"</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>

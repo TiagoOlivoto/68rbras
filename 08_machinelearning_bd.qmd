@@ -1,0 +1,6 @@
+---
+title: "08: Classificação automatizada de cores de batata-doce (Ipomoea batatas. L) por modelos combinados de aprendizado de máquina"
+---
+
+Scripts em Python disponíveis no [ClearML](https://app.clear.ml/projects/b710ad85746f49cd80078ab004bc9d49/experiments/a0204a2245c24c2f993a23997fe81097/output/execution)
+

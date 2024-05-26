@@ -60,7 +60,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./05_pcv.html" rel="prev">
+<link href="./08_machinelearning_bd.html" rel="next">
+<link href="./06_prod_qualidade.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -186,16 +187,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05_pcv.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">01: Model grain</span></a>
+ <span class="menu-text">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</span></a>
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">06_produtividade_qualidade.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./06_prod_qualidade.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./07_pca_cor.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_machinelearning_bd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08: Classificação automatizada de cores de batata-doce (Ipomoea batatas. L) por modelos combinados de aprendizado de máquina</span></a>
   </div>
 </li>
     </ul>
@@ -237,7 +247,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header><section id="pacotes" class="level1" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> Pacotes</h1>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gesistsa/rio">rio</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gesistsa.github.io/rio/">rio</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/TiagoOlivoto/metan">metan</a></span><span class="op">)</span></span>
@@ -247,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section><section id="dados" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> Dados</h1>
 <div class="cell">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">dfbind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"data/df_cor_pca.xlsx"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">dfbind</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://gesistsa.github.io/rio/reference/import.html">import</a></span><span class="op">(</span><span class="st">"data/df_cor_pca.xlsx"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="exploração" class="level2" data-number="2.1"><h2 data-number="2.1" class="anchored" data-anchor-id="exploração">
 <span class="header-section-number">2.1</span> Exploração</h2>
@@ -411,27 +421,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">##  [1] pliman_2.1.0.9000 FactoMineR_2.11   metan_1.18.0      factoextra_1.0.7 </span></span>
 <span><span class="co">##  [5] lubridate_1.9.3   forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4      </span></span>
 <span><span class="co">##  [9] purrr_1.0.2       readr_2.1.5       tidyr_1.3.1       tibble_3.2.1     </span></span>
-<span><span class="co">## [13] ggplot2_3.5.0     tidyverse_2.0.0   rio_1.0.1        </span></span>
+<span><span class="co">## [13] ggplot2_3.5.1     tidyverse_2.0.0   rio_1.1.0        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] mathjaxr_1.6-0       RColorBrewer_1.1-3   rstudioapi_0.16.0   </span></span>
 <span><span class="co">##   [4] jsonlite_1.8.8       magrittr_2.0.3       TH.data_1.1-2       </span></span>
-<span><span class="co">##   [7] estimability_1.5     farver_2.1.1         nloptr_2.0.3        </span></span>
-<span><span class="co">##  [10] rmarkdown_2.26       ragg_1.3.0           vctrs_0.6.5         </span></span>
-<span><span class="co">##  [13] minqa_1.2.6          RCurl_1.98-1.14      base64enc_0.1-3     </span></span>
-<span><span class="co">##  [16] terra_1.7-71         rstatix_0.7.2        htmltools_0.5.8     </span></span>
-<span><span class="co">##  [19] broom_1.0.5          cellranger_1.1.0     raster_3.6-26       </span></span>
-<span><span class="co">##  [22] KernSmooth_2.23-22   htmlwidgets_1.6.4    plyr_1.8.9          </span></span>
-<span><span class="co">##  [25] sandwich_3.1-0       emmeans_1.10.1       zoo_1.8-12          </span></span>
+<span><span class="co">##   [7] estimability_1.5.1   farver_2.1.2         nloptr_2.0.3        </span></span>
+<span><span class="co">##  [10] rmarkdown_2.27       ragg_1.3.2           vctrs_0.6.5         </span></span>
+<span><span class="co">##  [13] minqa_1.2.7          RCurl_1.98-1.14      base64enc_0.1-3     </span></span>
+<span><span class="co">##  [16] terra_1.7-78         rstatix_0.7.2        htmltools_0.5.8     </span></span>
+<span><span class="co">##  [19] broom_1.0.6          cellranger_1.1.0     raster_3.6-26       </span></span>
+<span><span class="co">##  [22] KernSmooth_2.23-24   htmlwidgets_1.6.4    plyr_1.8.9          </span></span>
+<span><span class="co">##  [25] sandwich_3.1-0       emmeans_1.10.2       zoo_1.8-12          </span></span>
 <span><span class="co">##  [28] mime_0.12            lifecycle_1.0.4      pkgconfig_2.0.3     </span></span>
 <span><span class="co">##  [31] Matrix_1.6-5         R6_2.5.1             fastmap_1.1.1       </span></span>
 <span><span class="co">##  [34] shiny_1.8.1.1        digest_0.6.35        numDeriv_2016.8-1.1 </span></span>
 <span><span class="co">##  [37] colorspace_2.1-0     GGally_2.2.1         mapview_2.11.2      </span></span>
-<span><span class="co">##  [40] patchwork_1.2.0      leafem_0.2.3         textshaping_0.3.7   </span></span>
+<span><span class="co">##  [40] patchwork_1.2.0      leafem_0.2.3         textshaping_0.4.0   </span></span>
 <span><span class="co">##  [43] crosstalk_1.2.1      ggpubr_0.6.0         labeling_0.4.3      </span></span>
 <span><span class="co">##  [46] fansi_1.0.6          timechange_0.3.0     polyclip_1.10-6     </span></span>
 <span><span class="co">##  [49] abind_1.4-5          compiler_4.3.3       proxy_0.4-27        </span></span>
-<span><span class="co">##  [52] withr_3.0.0          backports_1.4.1      tiff_0.1-12         </span></span>
+<span><span class="co">##  [52] withr_3.0.0          backports_1.5.0      tiff_0.1-12         </span></span>
 <span><span class="co">##  [55] viridis_0.6.5        carData_3.0-5        DBI_1.2.2           </span></span>
 <span><span class="co">##  [58] ggstats_0.6.0        dendextend_1.17.1    ggforce_0.4.2       </span></span>
 <span><span class="co">##  [61] R.utils_2.12.3       ggsignif_0.6.4       MASS_7.3-60.0.1     </span></span>
@@ -445,17 +455,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">##  [85] class_7.3-22         hms_1.1.3            car_3.1-2           </span></span>
 <span><span class="co">##  [88] sp_2.1-3             utf8_1.2.4           BiocGenerics_0.46.0 </span></span>
 <span><span class="co">##  [91] ggrepel_0.9.5        pillar_1.9.0         later_1.3.2         </span></span>
-<span><span class="co">##  [94] splines_4.3.3        tweenr_2.0.3         lattice_0.22-5      </span></span>
-<span><span class="co">##  [97] survival_3.5-8       tidyselect_1.2.1     locfit_1.5-9.9      </span></span>
+<span><span class="co">##  [94] splines_4.3.3        tweenr_2.0.3         lattice_0.22-6      </span></span>
+<span><span class="co">##  [97] survival_3.6-4       tidyselect_1.2.1     locfit_1.5-9.9      </span></span>
 <span><span class="co">## [100] knitr_1.46           gridExtra_2.3        stats4_4.3.3        </span></span>
-<span><span class="co">## [103] xfun_0.43            DT_0.33              stringi_1.8.3       </span></span>
-<span><span class="co">## [106] fftwtools_0.9-11     yaml_2.3.8           boot_1.3-29         </span></span>
-<span><span class="co">## [109] evaluate_0.23        codetools_0.2-19     multcompView_0.1-10 </span></span>
-<span><span class="co">## [112] cli_3.6.1            systemfonts_1.0.6    xtable_1.8-4        </span></span>
+<span><span class="co">## [103] xfun_0.44            DT_0.33              stringi_1.8.3       </span></span>
+<span><span class="co">## [106] fftwtools_0.9-11     yaml_2.3.8           boot_1.3-30         </span></span>
+<span><span class="co">## [109] evaluate_0.23        codetools_0.2-20     multcompView_0.1-10 </span></span>
+<span><span class="co">## [112] cli_3.6.1            systemfonts_1.1.0    xtable_1.8-4        </span></span>
 <span><span class="co">## [115] munsell_0.5.1        readxl_1.4.3         Rcpp_1.0.12         </span></span>
 <span><span class="co">## [118] coda_0.19-4.1        png_0.1-8            leaps_3.1           </span></span>
 <span><span class="co">## [121] exactextractr_0.10.0 jpeg_0.1-10          bitops_1.0-7        </span></span>
-<span><span class="co">## [124] lme4_1.1-35.2        viridisLite_0.4.2    mvtnorm_1.2-4       </span></span>
+<span><span class="co">## [124] lme4_1.1-35.3        viridisLite_0.4.2    mvtnorm_1.2-5       </span></span>
 <span><span class="co">## [127] lmerTest_3.1-3       scales_1.3.0         e1071_1.7-14        </span></span>
 <span><span class="co">## [130] rlang_1.1.3          multcomp_1.4-25</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -862,11 +872,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><nav class="page-navigation"><div class="nav-page nav-page-previous">
-      <a href="./05_pcv.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">01: Model grain</span>
+      <a href="./06_prod_qualidade.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="./08_machinelearning_bd.html" class="pagination-link">
+        <span class="nav-page-text">08: Classificação automatizada de cores de batata-doce (Ipomoea batatas. L) por modelos combinados de aprendizado de máquina</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>

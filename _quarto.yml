@@ -50,6 +50,7 @@ website:
         - 05_pcv.qmd
         - 06_prod_qualidade.qmd
         - 07_pca_cor.qmd
+        - 08_machinelearning_bd.qmd
 
 format:
   html: 

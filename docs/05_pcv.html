@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.433">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>68 RBras - 01: Model grain</title>
+<title>68 RBras - 05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -60,7 +60,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./07_pca_cor.html" rel="next">
+<link href="./06_prod_qualidade.html" rel="next">
 <link href="./04_MGIDI.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -144,7 +144,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./05_pcv.html">01: Model grain</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./05_pcv.html">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -187,16 +187,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05_pcv.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">01: Model grain</span></a>
+ <span class="menu-text">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</span></a>
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">06_produtividade_qualidade.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./06_prod_qualidade.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./07_pca_cor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_machinelearning_bd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08: Classificação automatizada de cores de batata-doce (Ipomoea batatas. L) por modelos combinados de aprendizado de máquina</span></a>
   </div>
 </li>
     </ul>
@@ -240,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">01: Model grain</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title">05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
 </div>
 
 
@@ -257,7 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="header-section-number">1</span> Pacotes</h1>
 <p>To reproduce the examples of this material, the R packages the following packages are needed.</p>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gesistsa/rio">rio</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gesistsa.github.io/rio/">rio</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/">caret</a></span><span class="op">)</span></span>
@@ -528,7 +537,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>                  pcv_niter <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>                  pcv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">meas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tiagoolivoto.github.io/pliman/reference/utils_measures.html">get_measures</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">$</span><span class="va">results</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://tiagoolivoto.github.io/pliman/reference/separate_col.html">separate_col</a></span><span class="op">(</span><span class="va">img</span>, into <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"specie"</span>, <span class="st">"img"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rio/man/export.html">export</a></span><span class="op">(</span><span class="va">meas</span>, <span class="st">"data/pcv.csv"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="fu"><a href="http://gesistsa.github.io/rio/reference/export.html">export</a></span><span class="op">(</span><span class="va">meas</span>, <span class="st">"data/pcv.csv"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="random-forest" class="level2" data-number="7.2"><h2 data-number="7.2" class="anchored" data-anchor-id="random-forest">
 <span class="header-section-number">7.2</span> Random Forest</h2>
@@ -536,7 +545,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="header-section-number">7.2.1</span> With PCV</h3>
 <div class="cell">
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df_pcv</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"data/pcv.csv"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="http://gesistsa.github.io/rio/reference/import.html">import</a></span><span class="op">(</span><span class="st">"data/pcv.csv"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">specie</span>, <span class="va">form_factor</span>, <span class="va">asp_ratio</span>, <span class="va">elongation</span>, <span class="va">pcv</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># best model</span></span>
@@ -583,11 +592,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">## </span></span>
 <span><span class="co">## No pre-processing</span></span>
 <span><span class="co">## Resampling: Cross-Validated (10 fold) </span></span>
-<span><span class="co">## Summary of sample sizes: 1716, 1717, 1719, 1719, 1714, 1716, ... </span></span>
+<span><span class="co">## Summary of sample sizes: 1715, 1717, 1715, 1714, 1718, 1713, ... </span></span>
 <span><span class="co">## Resampling results:</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##   Accuracy   Kappa    </span></span>
-<span><span class="co">##   0.8065346  0.8001796</span></span>
+<span><span class="co">##   Accuracy  Kappa    </span></span>
+<span><span class="co">##   0.803925  0.7974839</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Tuning parameter 'mtry' was held constant at a value of 7</span></span>
 <span><span class="va">cm_pcv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/confusionMatrix.train.html">confusionMatrix.train</a></span><span class="op">(</span><span class="va">fitpcv</span>, norm <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
@@ -618,7 +627,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="header-section-number">7.2.2</span> Without PCV</h3>
 <div class="cell">
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"data/pcv.csv"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="http://gesistsa.github.io/rio/reference/import.html">import</a></span><span class="op">(</span><span class="st">"data/pcv.csv"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">specie</span>, <span class="va">form_factor</span>, <span class="va">asp_ratio</span>, <span class="va">elongation</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># best model</span></span>
@@ -666,11 +675,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">## </span></span>
 <span><span class="co">## No pre-processing</span></span>
 <span><span class="co">## Resampling: Cross-Validated (10 fold) </span></span>
-<span><span class="co">## Summary of sample sizes: 1714, 1717, 1715, 1714, 1717, 1715, ... </span></span>
+<span><span class="co">## Summary of sample sizes: 1718, 1716, 1717, 1713, 1715, 1713, ... </span></span>
 <span><span class="co">## Resampling results:</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##   Accuracy   Kappa    </span></span>
-<span><span class="co">##   0.6565264  0.6452642</span></span>
+<span><span class="co">##   0.6533059  0.6419486</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Tuning parameter 'mtry' was held constant at a value of 7</span></span>
 <span><span class="va">cm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/confusionMatrix.train.html">confusionMatrix.train</a></span><span class="op">(</span><span class="va">fit</span>, norm <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
@@ -826,10 +835,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] FactoMineR_2.11   ggforce_0.4.2     metan_1.18.0      pliman_2.1.0.9000</span></span>
-<span><span class="co">##  [5] caret_6.0-94      lattice_0.22-5    factoextra_1.0.7  lubridate_1.9.3  </span></span>
+<span><span class="co">##  [5] caret_6.0-94      lattice_0.22-6    factoextra_1.0.7  lubridate_1.9.3  </span></span>
 <span><span class="co">##  [9] forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4       purrr_1.0.2      </span></span>
-<span><span class="co">## [13] readr_2.1.5       tidyr_1.3.1       tibble_3.2.1      ggplot2_3.5.0    </span></span>
-<span><span class="co">## [17] tidyverse_2.0.0   rio_1.0.1        </span></span>
+<span><span class="co">## [13] readr_2.1.5       tidyr_1.3.1       tibble_3.2.1      ggplot2_3.5.1    </span></span>
+<span><span class="co">## [17] tidyverse_2.0.0   rio_1.1.0        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] splines_4.3.3        later_1.3.2          bitops_1.0-7        </span></span>
@@ -837,27 +846,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">##   [7] pROC_1.18.5          rpart_4.1.23         lifecycle_1.0.4     </span></span>
 <span><span class="co">##  [10] rstatix_0.7.2        sf_1.0-16            globals_0.16.3      </span></span>
 <span><span class="co">##  [13] MASS_7.3-60.0.1      flashClust_1.01-2    crosstalk_1.2.1     </span></span>
-<span><span class="co">##  [16] backports_1.4.1      exactextractr_0.10.0 magrittr_2.0.3      </span></span>
-<span><span class="co">##  [19] rmarkdown_2.26       yaml_2.3.8           httpuv_1.6.15       </span></span>
-<span><span class="co">##  [22] sp_2.1-3             DBI_1.2.2            minqa_1.2.6         </span></span>
+<span><span class="co">##  [16] backports_1.5.0      exactextractr_0.10.0 magrittr_2.0.3      </span></span>
+<span><span class="co">##  [19] rmarkdown_2.27       yaml_2.3.8           httpuv_1.6.15       </span></span>
+<span><span class="co">##  [22] sp_2.1-3             DBI_1.2.2            minqa_1.2.7         </span></span>
 <span><span class="co">##  [25] RColorBrewer_1.1-3   multcomp_1.4-25      abind_1.4-5         </span></span>
 <span><span class="co">##  [28] R.utils_2.12.3       BiocGenerics_0.46.0  RCurl_1.98-1.14     </span></span>
 <span><span class="co">##  [31] nnet_7.3-19          TH.data_1.1-2        tweenr_2.0.3        </span></span>
 <span><span class="co">##  [34] sandwich_3.1-0       ipred_0.9-14         satellite_1.0.5     </span></span>
 <span><span class="co">##  [37] lava_1.8.0           ggrepel_0.9.5        listenv_0.9.1       </span></span>
-<span><span class="co">##  [40] terra_1.7-71         units_0.8-5          parallelly_1.37.1   </span></span>
-<span><span class="co">##  [43] codetools_0.2-19     DT_0.33              tidyselect_1.2.1    </span></span>
-<span><span class="co">##  [46] raster_3.6-26        farver_2.1.1         lme4_1.1-35.2       </span></span>
+<span><span class="co">##  [40] terra_1.7-78         units_0.8-5          parallelly_1.37.1   </span></span>
+<span><span class="co">##  [43] codetools_0.2-20     DT_0.33              tidyselect_1.2.1    </span></span>
+<span><span class="co">##  [46] raster_3.6-26        farver_2.1.2         lme4_1.1-35.3       </span></span>
 <span><span class="co">##  [49] stats4_4.3.3         base64enc_0.1-3      mathjaxr_1.6-0      </span></span>
-<span><span class="co">##  [52] jsonlite_1.8.8       e1071_1.7-14         survival_3.5-8      </span></span>
-<span><span class="co">##  [55] iterators_1.0.14     emmeans_1.10.1       systemfonts_1.0.6   </span></span>
-<span><span class="co">##  [58] foreach_1.5.2        tools_4.3.3          ragg_1.3.0          </span></span>
+<span><span class="co">##  [52] jsonlite_1.8.8       e1071_1.7-14         survival_3.6-4      </span></span>
+<span><span class="co">##  [55] iterators_1.0.14     emmeans_1.10.2       systemfonts_1.1.0   </span></span>
+<span><span class="co">##  [58] foreach_1.5.2        tools_4.3.3          ragg_1.3.2          </span></span>
 <span><span class="co">##  [61] Rcpp_1.0.12          glue_1.7.0           prodlim_2023.08.28  </span></span>
-<span><span class="co">##  [64] xfun_0.43            EBImage_4.42.0       withr_3.0.0         </span></span>
+<span><span class="co">##  [64] xfun_0.44            EBImage_4.42.0       withr_3.0.0         </span></span>
 <span><span class="co">##  [67] numDeriv_2016.8-1.1  fastmap_1.1.1        GGally_2.2.1        </span></span>
-<span><span class="co">##  [70] boot_1.3-29          fansi_1.0.6          digest_0.6.35       </span></span>
+<span><span class="co">##  [70] boot_1.3-30          fansi_1.0.6          digest_0.6.35       </span></span>
 <span><span class="co">##  [73] mapedit_0.6.0        timechange_0.3.0     R6_2.5.1            </span></span>
-<span><span class="co">##  [76] mime_0.12            estimability_1.5     textshaping_0.3.7   </span></span>
+<span><span class="co">##  [76] mime_0.12            estimability_1.5.1   textshaping_0.4.0   </span></span>
 <span><span class="co">##  [79] colorspace_2.1-0     jpeg_0.1-10          R.methodsS3_1.8.2   </span></span>
 <span><span class="co">##  [82] utf8_1.2.4           generics_0.1.3       data.table_1.15.4   </span></span>
 <span><span class="co">##  [85] recipes_1.0.10       class_7.3-22         htmlwidgets_1.6.4   </span></span>
@@ -868,19 +877,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">## [100] png_0.1-8            gower_1.0.1          knitr_1.46          </span></span>
 <span><span class="co">## [103] rstudioapi_0.16.0    tzdb_0.4.0           reshape2_1.4.4      </span></span>
 <span><span class="co">## [106] coda_0.19-4.1        nlme_3.1-164         nloptr_2.0.3        </span></span>
-<span><span class="co">## [109] proxy_0.4-27         zoo_1.8-12           KernSmooth_2.23-22  </span></span>
+<span><span class="co">## [109] proxy_0.4-27         zoo_1.8-12           KernSmooth_2.23-24  </span></span>
 <span><span class="co">## [112] parallel_4.3.3       pillar_1.9.0         grid_4.3.3          </span></span>
 <span><span class="co">## [115] vctrs_0.6.5          ggpubr_0.6.0         promises_1.2.1      </span></span>
 <span><span class="co">## [118] randomForest_4.7-1.1 mapview_2.11.2       car_3.1-2           </span></span>
 <span><span class="co">## [121] xtable_1.8-4         cluster_2.1.6        evaluate_0.23       </span></span>
-<span><span class="co">## [124] mvtnorm_1.2-4        cli_3.6.1            locfit_1.5-9.9      </span></span>
+<span><span class="co">## [124] mvtnorm_1.2-5        cli_3.6.1            locfit_1.5-9.9      </span></span>
 <span><span class="co">## [127] compiler_4.3.3       rlang_1.1.3          ggsignif_0.6.4      </span></span>
 <span><span class="co">## [130] future.apply_1.11.2  labeling_0.4.3       classInt_0.4-10     </span></span>
 <span><span class="co">## [133] plyr_1.8.9           stringi_1.8.3        lmerTest_3.1-3      </span></span>
 <span><span class="co">## [136] munsell_0.5.1        leaflet_2.2.2        tiff_0.1-12         </span></span>
 <span><span class="co">## [139] Matrix_1.6-5         hms_1.1.3            patchwork_1.2.0     </span></span>
 <span><span class="co">## [142] leafem_0.2.3         future_1.33.2        shiny_1.8.1.1       </span></span>
-<span><span class="co">## [145] broom_1.0.5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="co">## [145] broom_1.0.6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
@@ -1290,13 +1299,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./07_pca_cor.html" class="pagination-link">
-        <span class="nav-page-text">07: A paleta genética da linhaça: um mergulho na diversidade de cor auxiliado por métodos multivariados</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./06_prod_qualidade.html" class="pagination-link">
+        <span class="nav-page-text">06: A influência da época de semeadura em caracteres agronômicos e nutracêuticos de linho (Linum usitatissimum, L.) cultivados na região litorânea de Santa Catarina</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb27" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "01: Model grain"</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "05: PCV: desvendando a complexidade do perímetro de objetos em análise computacional de imagens"</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="in">```{r global_options, include = FALSE}</span></span>
